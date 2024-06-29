@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Turtle</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        .full-page-image {
+            background-image: url('turtle.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="full-page-image" onclick="playSound()"></div>
+
+    <audio id="clickSound" src="click.wav"></audio>
+    <audio id="explosionSound" src="explosion.mp3"></audio>
+
+    <script>
+        function playSound() {
+            const randomNum = Math.random();
+            const clickSound = document.getElementById('clickSound');
+            const explosionSound = document.getElementById('explosionSound');
+            
+            if (randomNum < 0.1) {
+                explosionSound.play();
+            } else {
+                clickSound.play();
+            }
+        }
+    </script>
+</body>
+</html>
