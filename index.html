@@ -8,6 +8,7 @@
         body, html {
             height: 100%;
             margin: 0;
+            overflow: hidden;
         }
         .full-page-image {
             background-image: url('turtle.jpg');
@@ -17,26 +18,87 @@
             height: 100%;
             width: 100%;
         }
+        .flash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
+        }
+        .flash.active {
+            opacity: 1;
+            transition: opacity 0.1s ease-in;
+        }
     </style>
 </head>
 <body>
     <div class="full-page-image" onclick="playSound()"></div>
+    <div class="flash" id="flash"></div>
 
     <audio id="clickSound" src="click.wav"></audio>
     <audio id="explosionSound" src="explosion.mp3"></audio>
 
     <script>
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => {
+                    console.log('Screen Wake Lock released:', wakeLock.released);
+                });
+                console.log('Screen Wake Lock acquired:', wakeLock.released);
+            } catch (err) {
+                console.error(`${err.name}, ${err.message}`);
+            }
+        }
+
         function playSound() {
             const randomNum = Math.random();
             const clickSound = document.getElementById('clickSound');
             const explosionSound = document.getElementById('explosionSound');
+            const flash = document.getElementById('flash');
             
             if (randomNum < 0.1) {
                 explosionSound.play();
+                flashScreen();
+                vibrate(true);
             } else {
                 clickSound.play();
+                vibrate(false);
             }
         }
+
+        function flashScreen() {
+            const flash = document.getElementById('flash');
+            flash.classList.add('active');
+            setTimeout(() => {
+                flash.classList.remove('active');
+            }, 100);
+        }
+
+        function vibrate(isExplosion) {
+            if ('vibrate' in navigator) {
+                if (isExplosion) {
+                    navigator.vibrate([500, 100, 500]);
+                } else {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            requestWakeLock();
+            document.addEventListener('visibilitychange', () => {
+                if (wakeLock !== null && document.visibilityState === 'visible') {
+                    requestWakeLock();
+                }
+            });
+        });
     </script>
 </body>
 </html>
