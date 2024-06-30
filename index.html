@@ -11,7 +11,7 @@
             overflow: hidden;
         }
         .full-page-image {
-            background-image: url('turtle.jpg');
+            background-image: url('turtle.jpeg');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -33,11 +33,39 @@
             opacity: 1;
             transition: opacity 0.1s ease-in;
         }
+        .explosion {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,0,0,1) 50%, rgba(0,0,0,0) 100%);
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+            pointer-events: none;
+            animation: none;
+        }
+        @keyframes explosionAnimation {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="full-page-image" onclick="playSound()"></div>
     <div class="flash" id="flash"></div>
+    <div class="explosion" id="explosion"></div>
 
     <audio id="clickSound" src="click.wav"></audio>
     <audio id="explosionSound" src="explosion.mp3"></audio>
@@ -62,10 +90,12 @@
             const clickSound = document.getElementById('clickSound');
             const explosionSound = document.getElementById('explosionSound');
             const flash = document.getElementById('flash');
+            const explosion = document.getElementById('explosion');
             
             if (randomNum < 0.1) {
                 explosionSound.play();
                 flashScreen();
+                showExplosion();
                 vibrate(true);
             } else {
                 clickSound.play();
@@ -81,12 +111,20 @@
             }, 100);
         }
 
+        function showExplosion() {
+            const explosion = document.getElementById('explosion');
+            explosion.style.animation = 'explosionAnimation 0.5s forwards';
+            setTimeout(() => {
+                explosion.style.animation = 'none';
+            }, 500);
+        }
+
         function vibrate(isExplosion) {
             if ('vibrate' in navigator) {
                 if (isExplosion) {
                     navigator.vibrate([500, 100, 500]);
                 } else {
-                    navigator.vibrate(25);
+                    navigator.vibrate(15);
                 }
             }
         }
